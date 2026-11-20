@@ -1,8 +1,5 @@
 # MRI 뇌종양 → 소견서 Top-k 검색 (CLIP fine-tuning)
 
-claude --resume 1ffca38f-8e76-422d-b27f-1889baad4bbc
-
-
 뇌종양 MRI 케이스(T1/T2/FLAIR/T1C)를 입력하면, 소견서 bank에서 가장 비슷한 소견서 top-k를 찾아 주는 CLIP 모델의 학습/검색 스크립트입니다.
 
 - 스크립트: `clip_mri_report.py` (`train`, `retrieve` 두 명령)
@@ -11,33 +8,6 @@ claude --resume 1ffca38f-8e76-422d-b27f-1889baad4bbc
   - 서버: conda env `~/.conda/envs/rrg-clip` (torch 2.14.1+cu130, torchvision 0.29.1, transformers 4.57.6, tensorboard 2.21)
   - 로컬: conda env `rrg-cheXpert`
 
-## 저장소와 다른 PC에서 이어서 작업하기
-- GitHub: `Cape-penguin/RRG` (private)
-- git에 **포함하지 않는 것** (`.gitignore`)
-  - `data/`: 원본 데이터셋(병원 소견서). NAS `/media/NAS66/huiseung/severance/`에 있습니다.
-  - `*.pt`, `runs/*/checkpoints/`: 모델 가중치. best.pt가 626MB라 git에 올릴 수 없습니다. 서버 `~/Workspace/rrg-clip/runs/`에 있습니다.
-- git에 **포함하는 것**: 코드, 노트북, README, `runs/`의 로그·TensorBoard·그림·CSV·지표, Claude Code 대화 기록(`claude/`)
-
-### Claude Code 대화 기록 동기화 (`claude_sync.sh`)
-Claude Code는 대화를 `~/.claude/projects/<프로젝트 경로>/<session-id>.jsonl`에 저장합니다. 이 파일을 `claude/sessions/`에 복사해 git으로 옮깁니다. 백업할 세션 목록은 `claude/SESSIONS`에 있습니다.
-
-```bash
-# 이 PC에서 작업한 뒤 올릴 때
-bash claude_sync.sh export        # ~/.claude → claude/
-git add -A && git commit -m "..." && git push
-
-# 다른 PC에서 처음 받을 때
-git clone git@github.com:Cape-penguin/RRG.git rrg && cd rrg
-bash claude_sync.sh import        # claude/ → ~/.claude/projects/<이 PC의 저장소 경로>/
-claude --resume 1ffca38f-8e76-422d-b27f-1889baad4bbc
-
-# 이후 동기화
-git pull && bash claude_sync.sh import
-```
-- import는 저장소를 clone한 경로에 맞춰 폴더 이름을 정하므로, 다른 경로에 clone해도 됩니다.
-- 로컬에 더 긴(더 최근) 대화 기록이 있으면 덮어쓰지 않습니다.
-- 두 PC에서 같은 세션을 동시에 이어 쓰면 한쪽 내용이 사라질 수 있습니다. 한 PC에서 작업을 끝내고 export → push한 뒤 다른 PC에서 pull → import하세요.
-- 속도: 서버 A6000에서 batch 32 기준 epoch당 약 22초 (로컬 RTX 5070, batch 16 기준 약 18초)
 
 ## 데이터
 
